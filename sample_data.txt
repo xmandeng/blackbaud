@@ -1,4 +1,4 @@
-
+[
 
     {
         "iCalLink": "/podium/feed/iCal.aspx?z=%2b1HRuR60xSNgyGbCKrhj7qprlfHquBYB1DHlDjgyGTVTxo83KsU2nRVNCVErh27swSS%2fki0anAgnPBgBjl3PHw%3d%3d",

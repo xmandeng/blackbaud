@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar QR Codes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 20px;
+        }
+
+        .calendar-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .qr-code {
+            width: 150px;
+            height: 150px;
+        }
+
+        .calendar-desc {
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Your Student Calendars</h1>
+    <p>Click on a calendar to see its QR code.</p>
+
+    <!-- Container to display the list of calendar QR codes -->
+    <div id="links-container">
+        <ul id="calendar-links">
+            <!-- QR codes will be populated here -->
+        </ul>
+    </div>
+
+    <!-- QRCode.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <script>
+        // Check if QRCode.js is loaded
+        if (typeof QRCode === 'undefined') {
+            console.error("QRCode library didn't load properly.");
+        } else {
+            // Define the token value
+            const token = '1bf28ab9-8f5e-d414-f345-247f3618c899';  // The token value you retrieved
+            const baseUrl = 'webcal://cathedralnyc.myschoolapp.com';  // Base URL for the iCal links
+
+            // Function to fetch and display the calendar QR codes
+            function fetchCalendarData() {
+                // Include the token in the URL as a query parameter
+                fetch(`https://cathedralnyc.myschoolapp.com/api/iCalRSS/iCalMyCalendarsGet?t=${token}`, {
+                    method: 'GET',
+                    credentials: 'include',  // Include session cookies for authentication
+                    headers: {
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok ' + response.statusText);
+                        }
+                        return response.json();  // Parse JSON response
+                    })
+                    .then(data => {
+                        // Extract and display the calendar QR codes
+                        const linksContainer = document.getElementById('calendar-links');
+
+                        data.forEach(calendar => {
+                            // Create the full iCal link
+                            const fullLink = `${baseUrl}${calendar.iCalLink}`;
+
+                            // Create a list item and container for QR code and description
+                            const listItem = document.createElement('li');
+                            const calendarItemDiv = document.createElement('div');
+                            calendarItemDiv.classList.add('calendar-item');
+
+                            // Create a div for the QR code
+                            const qrCodeDiv = document.createElement('div');
+                            qrCodeDiv.classList.add('qr-code');
+
+                            // Generate the QR Code for the iCal link with custom size and error correction level
+                            new QRCode(qrCodeDiv, {
+                                text: fullLink,
+                                width: 150,    // Increased size to make the code less dense
+                                height: 150,   // Increased size to match width
+                                correctLevel: QRCode.CorrectLevel.L,  // Lower error correction to make the QR code less dense
+                                margin: 2     // Adjust margin to add some padding around the code
+                            });
+
+                            // Create a span for the calendar description
+                            const calendarDesc = document.createElement('span');
+                            calendarDesc.classList.add('calendar-desc');
+                            calendarDesc.textContent = calendar.Desc;
+
+                            // Append the QR code and description to the container
+                            calendarItemDiv.appendChild(qrCodeDiv);
+                            calendarItemDiv.appendChild(calendarDesc);
+
+                            // Append the container to the list item
+                            listItem.appendChild(calendarItemDiv);
+
+                            // Append the list item to the list
+                            linksContainer.appendChild(listItem);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error fetching the calendar data:', error);
+                        const linksContainer = document.getElementById('calendar-links');
+                        const errorItem = document.createElement('li');
+                        errorItem.textContent = 'Error fetching calendar data: ' + error.message;
+                        linksContainer.appendChild(errorItem);
+                    });
+            }
+
+            // Call the function to fetch and display the data when the page loads
+            window.onload = fetchCalendarData;
+        }
+    </script>
+
+</body>
+
+</html>

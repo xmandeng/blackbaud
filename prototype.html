@@ -4,25 +4,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendar JSON Fetch</title>
+    <title>Calendar Links</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             padding: 20px;
         }
 
-        pre {
-            background-color: #f4f4f4;
-            padding: 15px;
-            border-radius: 5px;
-            overflow-x: auto;
-        }
-
         h1 {
             color: #333;
         }
 
-        #json-data {
+        ul {
+            list-style-type: disc;
+            margin-top: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        a {
+            text-decoration: none;
+            color: #007BFF;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        #links-container {
             margin-top: 20px;
         }
     </style>
@@ -30,23 +41,22 @@
 
 <body>
 
-    <h1>Calendar JSON Data</h1>
-    <p>Fetching the calendar data from the server...</p>
+    <h1>Your Calendar Links</h1>
+    <p>Your students calendar links:</p>
 
-    <!-- Container to display the fetched JSON -->
-    <div id="json-data">
-        <pre id="json-display">Loading...</pre>
+    <!-- Container to display the list of calendar links -->
+    <div id="links-container">
+        <ul id="calendar-links">
+            <!-- Links will be populated here -->
+        </ul>
     </div>
 
     <script>
-        // Example webcal - 
- 
-        // webcal://cathedralnyc.myschoolapp.com/podium/feed/iCal.aspx?z=0ri4SRmrllEk04uc9G1aW%2fGGbWPlD032OXqimHPaaDt273nQEau1k40JZDQihSvY3%2fqox4V7VBn%2fAzwaqYK61g%3d%3d
- 
         // Define the token value
         const token = '1bf28ab9-8f5e-d414-f345-247f3618c899';  // The token value you retrieved
+        const baseUrl = 'webcal://cathedralnyc.myschoolapp.com';  // Base URL for the iCal links
 
-        // Function to fetch and display the calendar JSON data
+        // Function to fetch and display the calendar links
         function fetchCalendarData() {
             // Include the token in the URL as a query parameter
             fetch(`https://cathedralnyc.myschoolapp.com/api/iCalRSS/iCalMyCalendarsGet?t=${token}`, {
@@ -64,14 +74,33 @@
                     return response.json();  // Parse JSON response
                 })
                 .then(data => {
-                    // Display the JSON data in a formatted way
-                    const jsonDisplay = document.getElementById('json-display');
-                    jsonDisplay.textContent = JSON.stringify(data, null, 4);  // Pretty-print JSON
+                    // Extract and display the calendar links
+                    const linksContainer = document.getElementById('calendar-links');
+
+                    data.forEach(calendar => {
+                        // Create the full iCal link
+                        const fullLink = `${baseUrl}${calendar.iCalLink}`;
+
+                        // Create a list item and anchor tag
+                        const listItem = document.createElement('li');
+                        const link = document.createElement('a');
+                        link.href = fullLink;
+                        link.textContent = calendar.Desc;
+                        link.target = "_blank";  // Open in a new tab
+
+                        // Append the link to the list item
+                        listItem.appendChild(link);
+
+                        // Append the list item to the list
+                        linksContainer.appendChild(listItem);
+                    });
                 })
                 .catch(error => {
                     console.error('Error fetching the calendar data:', error);
-                    const jsonDisplay = document.getElementById('json-display');
-                    jsonDisplay.textContent = 'Error fetching calendar data: ' + error.message;
+                    const linksContainer = document.getElementById('calendar-links');
+                    const errorItem = document.createElement('li');
+                    errorItem.textContent = 'Error fetching calendar data: ' + error.message;
+                    linksContainer.appendChild(errorItem);
                 });
         }
 

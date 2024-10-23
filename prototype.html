@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar JSON Fetch</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        pre {
+            background-color: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        #json-data {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Calendar JSON Data</h1>
+    <p>Fetching the calendar data from the server...</p>
+
+    <!-- Container to display the fetched JSON -->
+    <div id="json-data">
+        <pre id="json-display">Loading...</pre>
+    </div>
+
+    <script>
+        // Example webcal - 
+ 
+        // webcal://cathedralnyc.myschoolapp.com/podium/feed/iCal.aspx?z=0ri4SRmrllEk04uc9G1aW%2fGGbWPlD032OXqimHPaaDt273nQEau1k40JZDQihSvY3%2fqox4V7VBn%2fAzwaqYK61g%3d%3d
+ 
+        // Define the token value
+        const token = '1bf28ab9-8f5e-d414-f345-247f3618c899';  // The token value you retrieved
+
+        // Function to fetch and display the calendar JSON data
+        function fetchCalendarData() {
+            // Include the token in the URL as a query parameter
+            fetch(`https://cathedralnyc.myschoolapp.com/api/iCalRSS/iCalMyCalendarsGet?t=${token}`, {
+                method: 'GET',
+                credentials: 'include',  // Include session cookies for authentication
+                headers: {
+                    'Accept': 'application/json, text/javascript, */*; q=0.01',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.json();  // Parse JSON response
+                })
+                .then(data => {
+                    // Display the JSON data in a formatted way
+                    const jsonDisplay = document.getElementById('json-display');
+                    jsonDisplay.textContent = JSON.stringify(data, null, 4);  // Pretty-print JSON
+                })
+                .catch(error => {
+                    console.error('Error fetching the calendar data:', error);
+                    const jsonDisplay = document.getElementById('json-display');
+                    jsonDisplay.textContent = 'Error fetching calendar data: ' + error.message;
+                });
+        }
+
+        // Call the function to fetch and display the data when the page loads
+        window.onload = fetchCalendarData;
+    </script>
+
+</body>
+
+</html>

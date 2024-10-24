@@ -106,16 +106,21 @@
         </div>
     </div>
 
+    <!-- Discrete input for token -->
+    <div style="margin-top: 20px;">
+        <input type="text" id="tokenInput" placeholder="Enter your token" style="width: 200px; padding: 5px;"/>
+        <button id="fetchCalendars" class="close-btn">Fetch Calendars</button>
+    </div>
+
     <!-- QRCode.js Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <script>
-        // Define the token value
-        const token = '1bf28ab9-8f5e-d414-f345-247f3618c899';  // The token value you retrieved
-        const baseUrl = 'webcal://cathedralnyc.myschoolapp.com';  // Base URL for the iCal links
-
         // Function to fetch and display the calendar links
         function fetchCalendarData() {
+            const token = document.getElementById('tokenInput').value;  // Get token from input field
+            const baseUrl = 'webcal://cathedralnyc.myschoolapp.com';  // Base URL for the iCal links
+
             // Include the token in the URL as a query parameter
             fetch(`https://cathedralnyc.myschoolapp.com/api/iCalRSS/iCalMyCalendarsGet?t=${token}`, {
                 method: 'GET',
@@ -171,8 +176,8 @@
             // Clear any previous QR code
             qrCodeContainer.innerHTML = '';
 
-            // Set the calendar description in the modal
-            calendarDesc.textContent = description;
+            // Set the calendar description in the modal as a hyperlink
+            calendarDesc.innerHTML = `<a href="${fullLink}" target="_blank">${description}</a>`;  // Make title a hyperlink
 
             // Generate the QR code for the iCal link
             new QRCode(qrCodeContainer, {
@@ -199,8 +204,8 @@
             }
         }
 
-        // Call the function to fetch and display the data when the page loads
-        window.onload = fetchCalendarData;
+        // Call the function to fetch and display the data when the button is clicked
+        document.getElementById('fetchCalendars').onclick = fetchCalendarData;
     </script>
 
 </body>

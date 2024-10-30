@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar QR Codes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        ul {
+            list-style-type: disc;
+            margin-top: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        a {
+            text-decoration: none;
+            color: #007BFF;
+            cursor: pointer;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 5px;
+            width: 300px;
+            text-align: center;
+        }
+
+        .modal-header {
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .qr-code {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Your Student Calendars</h1>
+    <p>Click on a calendar to see its QR code.</p>
+
+    <div id="links-container">
+        <ul id="calendar-links">
+            <!-- Links will be populated here -->
+        </ul>
+    </div>
+
+    <div id="qrModal" class="modal">
+        <div class="modal-content">
+            <div id="qrCodeContainer" class="qr-code"></div>
+            <p id="calendarDesc" class="modal-header"></p>
+            <button id="closeModal" class="close-btn">Close</button>
+        </div>
+    </div>
+
+    <script>
+        const baseUrl = 'webcal://cathedralnyc.myschoolapp.com';
+
+        // Function to fetch and display the calendar links
+        function fetchCalendarData() {
+            fetch(`https://cathedralnyc.myschoolapp.com/api/iCalRSS/iCalMyCalendarsGet`, {
+                method: 'GET',
+                credentials: 'include',  // Include session cookies for authentication
+                headers: {
+                    'Accept': 'application/json, text/javascript, */*; q=0.01',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const linksContainer = document.getElementById('calendar-links');
+
+                    data.forEach(calendar => {
+                        const fullLink = `${baseUrl}${calendar.iCalLink}`;
+                        const listItem = document.createElement('li');
+                        const link = document.createElement('a');
+                        link.textContent = calendar.Desc;
+                        link.onclick = () => openQrModal(fullLink, calendar.Desc);
+
+                        listItem.appendChild(link);
+                        linksContainer.appendChild(listItem);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching the calendar data:', error);
+                    const linksContainer = document.getElementById('calendar-links');
+                    const errorItem = document.createElement('li');
+                    errorItem.textContent = 'Error fetching calendar data: ' + error.message;
+                    linksContainer.appendChild(errorItem);
+                });
+        }
+
+        function openQrModal(fullLink, description) {
+            const modal = document.getElementById('qrModal');
+            const qrCodeContainer = document.getElementById('qrCodeContainer');
+            const calendarDesc = document.getElementById('calendarDesc');
+
+            qrCodeContainer.innerHTML = '';
+            calendarDesc.innerHTML = `<u><a href="${fullLink}" target="_blank">${description}</a></u>`;
+
+            new QRCode(qrCodeContainer, {
+                text: fullLink,
+                width: 200,
+                height: 200
+            });
+
+            modal.style.display = 'block';
+        }
+
+        document.getElementById('closeModal').onclick = function () {
+            const modal = document.getElementById('qrModal');
+            modal.style.display = 'none';
+        }
+
+        window.onclick = function (event) {
+            const modal = document.getElementById('qrModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Fetch calendar data on page load
+        window.onload = fetchCalendarData;
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+</body>
+
+</html> 

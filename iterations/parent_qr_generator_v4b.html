@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Calendar QR Codes</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .calendar-group {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+
+        .calendar-group h2 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #4a90e2;
+            padding-bottom: 8px;
+        }
+
+        #calendar-links {
+            list-style: none;
+            padding: 0;
+        }
+
+        #calendar-links li {
+            margin: 8px 0;
+        }
+
+        #calendar-links a {
+            display: inline-block;
+            padding: 8px 16px;
+            color: #4a90e2;
+            text-decoration: none;
+            border: 1px solid #4a90e2;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        #calendar-links a:hover {
+            background-color: #4a90e2;
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .close-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background-color: #357abd;
+        }
+
+        .error {
+            color: #dc3545;
+            padding: 15px;
+            border: 1px solid #dc3545;
+            border-radius: 4px;
+            margin: 10px 0;
+            background-color: #f8d7da;
+        }
+
+        #qrCodeContainer {
+            margin: 20px auto;
+        }
+
+        #calendarDesc {
+            margin: 15px 0;
+            font-size: 16px;
+        }
+
+        .calendar-type {
+            font-size: 0.9em;
+            color: #666;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Your Student Calendars</h1>
+    <p>Click on a calendar to see its QR code. You can use these codes to quickly add calendars to your phone or other devices.</p>
+    <div id="links-container">
+        <ul id="calendar-links"></ul>
+    </div>
+
+    <div id="qrModal" class="modal">
+        <div class="modal-content">
+            <div id="qrCodeContainer"></div>
+            <div id="calendarDesc"></div>
+            <button id="closeModal" class="close-btn">Close</button>
+        </div>
+    </div>
+
+    <script>
+        const baseUrl = 'webcal://cathedralnyc.myschoolapp.com';
+
+        async function fetchCalendarData() {
+            try {
+                const response = await fetch('https://cathedralnyc.myschoolapp.com/api/iCalRSS/iCalMyCalendarsGet', {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const linksContainer = document.getElementById('calendar-links');
+                linksContainer.innerHTML = '';
+
+                if (!data || data.length === 0) {
+                    linksContainer.innerHTML = '<li class="error">No calendars available. Please ensure you are logged in.</li>';
+                    return;
+                }
+
+                // Group calendars by Grp property
+                const groups = data.reduce((acc, calendar) => {
+                    if (calendar.Grp) {
+                        acc.groups.push(calendar);
+                    } else {
+                        acc.individual.push(calendar);
+                    }
+                    return acc;
+                }, { groups: [], individual: [] });
+
+                // Create container for each group
+                groups.groups.forEach(group => {
+                    const groupDiv = document.createElement('div');
+                    groupDiv.className = 'calendar-group';
+                    groupDiv.innerHTML = `<h2>${group.Desc}</h2><ul class="group-calendars"></ul>`;
+                    
+                    // Find all calendars that belong to this group based on CalId
+                    const groupCalendars = groups.individual.filter(cal => cal.CalId === group.CalId);
+                    const calendarList = groupDiv.querySelector('.group-calendars');
+                    
+                    groupCalendars.forEach(calendar => {
+                        const fullLink = `${baseUrl}${calendar.iCalLink}`;
+                        calendarList.innerHTML += `
+                            <li><a href="#" onclick="openQrModal('${fullLink}', '${calendar.Desc}'); return false;">
+                                ${calendar.Desc}
+                            </a></li>`;
+                    });
+                    
+                    linksContainer.appendChild(groupDiv);
+                });
+
+            } catch (error) {
+                console.error('Error fetching calendars:', error);
+                const linksContainer = document.getElementById('calendar-links');
+                linksContainer.innerHTML = `<li class="error">Unable to load calendars. Please ensure you are logged in and try refreshing the page. Error: ${error.message}</li>`;
+            }
+        }
+
+        function openQrModal(fullLink, description) {
+            const modal = document.getElementById('qrModal');
+            const qrCodeContainer = document.getElementById('qrCodeContainer');
+            const calendarDesc = document.getElementById('calendarDesc');
+
+            qrCodeContainer.innerHTML = '';
+            calendarDesc.innerHTML = `
+                <p><strong>${description}</strong></p>
+                <p>Scan this code to add the calendar to your device</p>
+                <p><a href="${fullLink}" target="_blank">Or click here to subscribe directly</a></p>
+            `;
+
+            new QRCode(qrCodeContainer, {
+                text: fullLink,
+                width: 200,
+                height: 200
+            });
+
+            modal.style.display = 'block';
+        }
+
+        // Close handlers
+        document.getElementById('closeModal').onclick = () =>
+            document.getElementById('qrModal').style.display = 'none';
+
+        window.onclick = (event) => {
+            const modal = document.getElementById('qrModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+
+        // Start loading when page is ready
+        document.addEventListener('DOMContentLoaded', fetchCalendarData);
+    </script>
+</body>
+</html>

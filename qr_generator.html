@@ -1,0 +1,73 @@
+<!-- Include QRCode.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<style>
+    #qrCode {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 20px auto;
+    }
+</style>
+
+<div id="qrCodeContainer" style="text-align: center; margin-top: 20px;">
+    <!-- QR code will appear here -->
+</div>
+
+<script>
+    (function () {
+        alert("Script is running! Fetching calendar data...");
+        fetch("/api/iCalRSS/iCalMyCalendarsGet", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            credentials: "include", // Ensures cookies are sent if needed
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json(); // Parse the response as JSON
+            })
+            .then((data) => {
+                // Find the calendar with Desc: "Schedule"
+                const scheduleCalendar = data.find((calendar) => calendar.Desc === "Schedule");
+
+                if (!scheduleCalendar || !scheduleCalendar.iCalLink) {
+                    throw new Error("Calendar with Desc 'Schedule' not found");
+                }
+
+                // Build the webcal:// URL directly
+                const calendarUrl = `webcal://cathedralnyc.myschoolapp.com${scheduleCalendar.iCalLink}`;
+
+                // Select the container element
+                const container = document.getElementById("qrCodeContainer");
+
+                // Update the container with calendar information
+                container.innerHTML = `
+          <div id="qrCode"></div>
+          <p>
+            <a href="${calendarUrl}" target="_blank">${scheduleCalendar.Desc}</a>
+          </p>
+          <p>Scan the QR code or click the link to subscribe to the calendar.</p>
+        `;
+
+                // Generate the QR Code
+                new QRCode(document.getElementById("qrCode"), {
+                    text: calendarUrl,
+                    width: 200,
+                    height: 200,
+                });
+            })
+            .catch((error) => {
+                // Display error message
+                const container = document.getElementById("qrCodeContainer");
+                container.innerHTML = `
+          <h2>Error</h2>
+          <p>Unable to load calendar data. Please try again later.</p>
+          <p>Error: ${error.message}</p>
+        `;
+            });
+    })();
+</script>

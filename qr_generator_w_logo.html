@@ -1,5 +1,5 @@
-<!-- Include QR Code with Logo library -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-with-logos/1.0.3/qrcode-with-logos.min.js"></script>
+<!-- Include EasyQRCodeJS library -->
+<script src="https://cdn.jsdelivr.net/npm/easyqrcodejs@4.6.0/dist/easy.qrcode.min.js"></script>
 
 <style>
     body {
@@ -42,9 +42,7 @@
         box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
 
-    .qr-code-section canvas {
-        max-width: 350px;
-        height: auto;
+    .qr-code-container {
         margin-bottom: 20px;
     }
 
@@ -123,32 +121,39 @@
 
 <script>
     (function () {
-        async function generateQRWithLogo(elementId, url) {
+        function generateQRWithLogo(elementId, url) {
             try {
-                const qrCode = new QrCodeWithLogo({
-                    canvas: document.getElementById(elementId),
-                    content: url,
+                new QRCode(document.getElementById(elementId), {
+                    text: url,
                     width: 350,
-                    logo: {
-                        src: "thumb_pa.jpg",
-                        radius: 8,
-                        logoSize: 0.2
-                    },
-                    nodeQrCodeOptions: {
-                        color: {
-                            dark: "#1B365D",  // Dark blue color
-                            light: "#ffffff"
-                        },
-                        errorCorrectionLevel: 'H'
-                    }
+                    height: 350,
+                    colorDark: "#1B365D",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H,
+                    quietZone: 10,
+                    quietZoneColor: '#ffffff',
+                    logo: "thumb_ca.jpg",
+                    logoWidth: 80,
+                    logoHeight: 80,
+                    logoBackgroundColor: '#ffffff',
+                    logoBackgroundTransparent: false,
+                    title: "",
+                    titleFont: "normal normal bold 16px Arial",
+                    titleColor: "#1B365D",
+                    titleBackgroundColor: "#ffffff",
+                    titleHeight: 0,
+                    subTitle: "",
+                    subTitleFont: "normal normal normal 14px Arial",
+                    subTitleColor: "#1B365D",
+                    PO: '#1B365D',
+                    PI: '#ffffff',
+                    AO: '',
+                    AI: '',
                 });
-                
-                await qrCode.toCanvas();
             } catch (error) {
                 console.error('Error generating QR code:', error);
-                // Fallback to show error in the QR code section
-                const canvas = document.getElementById(elementId);
-                canvas.insertAdjacentHTML('afterend', '<div class="error">Unable to generate QR code with logo</div>');
+                const container = document.getElementById(elementId);
+                container.innerHTML = '<div class="error">Unable to generate QR code</div>';
             }
         }
 
@@ -174,7 +179,7 @@
                 }
                 return response.json();
             })
-            .then(async (data) => {
+            .then((data) => {
                 const studentCalendars = data.filter((calendar) =>
                     calendar.Desc.endsWith("'s Calendars")
                 );
@@ -185,7 +190,7 @@
 
                 const container = document.querySelector('.student-calendars');
 
-                for (const [index, calendar] of studentCalendars.entries()) {
+                studentCalendars.forEach((calendar, index) => {
                     const studentName = calendar.Desc.slice(0, -11).replace("'", "");
                     const webcalUrl = createWebcalUrl(calendar.iCalLink);
 
@@ -194,7 +199,7 @@
 
                     const qrCodeSection = !isMobile ? `
                         <div class="qr-code-section">
-                            <canvas id="qrCode${index}"></canvas>
+                            <div id="qrCode${index}" class="qr-code-container"></div>
                             <div class="desktop-instructions">
                                 <strong>Tips for Scanning:</strong>
                                 <br>
@@ -223,9 +228,9 @@
 
                     // Generate QR code for desktop only
                     if (!isMobile) {
-                        await generateQRWithLogo(`qrCode${index}`, webcalUrl);
+                        generateQRWithLogo(`qrCode${index}`, webcalUrl);
                     }
-                }
+                });
             })
             .catch((error) => {
                 const container = document.getElementById("qrCodeContainer");

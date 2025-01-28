@@ -94,6 +94,60 @@
         border: 1px solid #ffeeba;
         border-radius: 4px;
     }
+
+    /* Mobile Styles */
+    @media (max-width: 768px) {
+        body {
+            padding: 10px;
+        }
+
+        .student-calendars {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .student-card {
+            padding: 15px;
+            max-width: 100%;
+        }
+
+        .qr-code-section {
+            display: none;  /* Hide QR code on mobile */
+        }
+
+        .calendar-link {
+            display: block;
+            margin: 10px auto;
+            padding: 16px 24px;
+            font-size: 1.1em;
+            width: 80%;
+            text-align: center;
+        }
+
+        .instructions {
+            padding: 12px;
+        }
+
+        .mobile-instructions {
+            display: block;
+            margin: 15px 0;
+            padding: 12px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            line-height: 1.4;
+        }
+
+        .desktop-instructions {
+            display: none;
+        }
+    }
+
+    /* Desktop-only elements */
+    @media (min-width: 769px) {
+        .mobile-instructions {
+            display: none;
+        }
+    }
 </style>
 
 <div id="qrCodeContainer">
@@ -109,6 +163,9 @@
             const separator = baseUrl.includes('?') ? '&' : '?';
             return `webcal://cathedralnyc.myschoolapp.com${baseUrl}${separator}t=${timestamp}`;
         }
+
+        // Check if device is mobile
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
         fetch("/api/iCalRSS/iCalMyCalendarsGet", {
             method: "GET",
@@ -141,46 +198,58 @@
                     const studentCard = document.createElement('div');
                     studentCard.className = 'student-card';
 
+                    const qrCodeSection = !isMobile ? `
+                        <div class="qr-code-section">
+                            <div class="qr-code" id="qrCode${index}"></div>
+                            <div class="desktop-instructions">
+                                <strong>Tips for Scanning:</strong>
+                                <br>
+                                1. Increase your screen brightness to maximum
+                                <br>
+                                2. Hold phone 6-8 inches from screen
+                                <br>
+                                3. Avoid screen glare when scanning
+                                <br>
+                                4. When prompted, tap to open calendar app
+                                <br>
+                                5. Confirm the subscription
+                                <br><br>
+                                - OR -
+                                <br><br>
+                                Simply click the "Subscribe to Calendar" button below
+                            </div>
+                        </div>
+                    ` : '';
+
+                    const mobileInstructions = isMobile ? `
+                        <div class="mobile-instructions">
+                            Tap the button below to subscribe to ${studentName}'s calendar
+                        </div>
+                    ` : '';
+
                     studentCard.innerHTML = `
                         <div class="student-name">${studentName}</div>
-                        <div class="qr-code" id="qrCode${index}"></div>
+                        ${qrCodeSection}
+                        ${mobileInstructions}
                         <a href="${webcalUrl}" class="calendar-link" onclick="return confirm('This will open your calendar app to subscribe to ${studentName}\\'s calendar. Continue?')">
                             📅 Subscribe to Calendar
                         </a>
-                        <div class="instructions">
-                            <strong>Tips for Scanning:</strong>
-                            <br>
-                            1. Increase your screen brightness to maximum
-                            <br>
-                            2. Hold phone 6-8 inches from screen
-                            <br>
-                            3. Avoid screen glare when scanning
-                            <br>
-                            4. When prompted, tap to open calendar app
-                            <br>
-                            5. Confirm the subscription
-                            <br><br>
-                            - OR -
-                            <br><br>
-                            Simply click the "Subscribe to Calendar" button above
-                        </div>
-                        <div class="device-note">
-                            ℹ️ For best results, open this page directly on your device or scan the QR code with your device's camera
-                        </div>
                     `;
 
                     container.appendChild(studentCard);
 
-                    // Generate optimized QR code
-                    new QRCode(document.getElementById(`qrCode${index}`), {
-                        text: webcalUrl,
-                        width: 350,
-                        height: 350,
-                        colorDark: "#000000",
-                        colorLight: "#ffffff",
-                        correctLevel: QRCode.CorrectLevel.H,
-                        margin: 4
-                    });
+                    // Only generate QR code for desktop
+                    if (!isMobile) {
+                        new QRCode(document.getElementById(`qrCode${index}`), {
+                            text: webcalUrl,
+                            width: 350,
+                            height: 350,
+                            colorDark: "#000000",
+                            colorLight: "#ffffff",
+                            correctLevel: QRCode.CorrectLevel.H,
+                            margin: 4
+                        });
+                    }
                 });
             })
             .catch((error) => {

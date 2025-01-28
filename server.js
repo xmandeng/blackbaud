@@ -11,7 +11,7 @@ app.use(express.static('.'));
 // API endpoint to serve the calendar data
 app.get('/api/iCalRSS/iCalMyCalendarsGet', async (req, res) => {
     try {
-        const data = await fs.readFile('sample_calendar_data_1.json', 'utf8');
+        const data = await fs.readFile('sample_calendar_data.json', 'utf8');
         res.json(JSON.parse(data));
     } catch (error) {
         console.error('Error reading calendar data:', error);

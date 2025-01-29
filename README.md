@@ -10,23 +10,27 @@ A web application that generates QR codes for calendar subscriptions. This local
 ## Setup
 
 1. Clone the repository:
+
 ```bash
 git clone [your-repository-url]
 cd cathedral-qr
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Start the development server:
+
 ```bash
 npm start
 ```
 
-The server will start on http://localhost:3000. You can access the QR code generator at:
-- http://localhost:3000/qr_generator.html
+The server will start on `http://localhost:3000`. You can access the QR code generator at:
+
+- `http://localhost:3000/qr_generator.html`
 
 ## Project Structure
 
@@ -41,6 +45,6 @@ The server provides a local API endpoint at `/api/iCalRSS/iCalMyCalendarsGet` th
 
 ## Notes
 
-- The server runs on port 3000 by default. You can change this by setting the `PORT` environment variable.
-- All static files in the root directory are served automatically.
-- The sample calendar data is loaded from `sample_calendar_data.json`. 
+- The server runs on port 3000 by default. You can change this by setting the `PORT` environment variable
+- All static files in the root directory are served automatically
+- The sample calendar data is loaded from `sample_calendar_data.json`

@@ -43,4 +43,4 @@ The server provides a local API endpoint at `/api/iCalRSS/iCalMyCalendarsGet` th
 
 - The server runs on port 3000 by default. You can change this by setting the `PORT` environment variable.
 - All static files in the root directory are served automatically.
-- The sample calendar data is loaded from `sample_calendar_data_1.json`. 
+- The sample calendar data is loaded from `sample_calendar_data.json`. 

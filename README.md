@@ -1,6 +1,18 @@
-# Cathedral QR Code Generator
+# Blackbaud Calendar QR Generator
 
-A web application that generates QR codes for calendar subscriptions. This local development version uses sample calendar data to allow for testing without requiring authentication to the school's website.
+A web application that generates QR codes for easy student calendar subscriptions in Blackbaud. Built with vanilla JavaScript, it fetches calendar data from Blackbaud's API and creates scannable QR codes that automatically configure calendar subscriptions on mobile devices. Features responsive card layout, optimized QR code generation, and user-friendly subscription instructions.
+
+## Key Features
+- Auto-generates webcal:// URLs with timestamp versioning
+- High-quality QR codes with error correction
+- Responsive grid layout for multiple student calendars
+- Direct subscription button alternative
+- Mobile-optimized scanning instructions
+
+## Tech
+- QRCode.js for QR generation
+- Blackbaud API integration
+- CSS Grid for responsive layout
 
 ## Prerequisites
 

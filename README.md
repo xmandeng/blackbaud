@@ -12,7 +12,7 @@ A web application that generates QR codes for calendar subscriptions. This local
 1. Clone the repository:
 
 ```bash
-git clone [your-repository-url]
+git clone git@github.com:xmandeng/cathedral-qr.git
 cd cathedral-qr
 ```
 

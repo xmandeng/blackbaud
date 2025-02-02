@@ -125,4 +125,6 @@ temp/
 # Puppeteer user data
 chrome-user-data/
 
+_hidden_/
+
 sample_calendar_data_*

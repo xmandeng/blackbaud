@@ -134,8 +134,12 @@
         padding: 0 16px;
     }
 
-    .quick-setup-card .alternative-action {
-        padding: 16px 16px 0 16px;
+    .quick-setup-card .setup-steps,
+    .quick-setup-card .mobile-only,
+    .quick-setup-card .alternative-action,
+    .quick-setup-card .github-link {
+        margin-left: 16px;
+        margin-right: 16px;
     }
 
     .setup-step {
@@ -165,9 +169,11 @@
         color: #2C405A;
         font-size: 14px;
         opacity: 0.8;
-        padding-top: 16px;
+        padding: 16px 0 0;
+        width: calc(100% - 32px);
         border-top: 1px solid rgba(44, 64, 90, 0.08);
-        width: 100%;
+        margin: 0;
+        box-sizing: border-box;
     }
 
     .quick-setup-card .alternative-action {
@@ -176,6 +182,31 @@
 
     .card:not(.quick-setup-card) .alternative-action {
         text-align: center;
+    }
+
+    .github-link {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        color: #2C405A;
+        font-size: 14px;
+        opacity: 0.8;
+        padding: 16px 0 0;
+        width: calc(100% - 32px);
+        margin: 16px 0 0;
+        border-top: 1px solid rgba(44, 64, 90, 0.08);
+        box-sizing: border-box;
+    }
+
+    .github-link img {
+        width: 16px;
+        height: 16px;
+        opacity: 0.7;
+    }
+
+    .github-link:hover {
+        opacity: 1;
     }
 
     .desktop-only {
@@ -245,6 +276,15 @@
         .alternative-action {
             font-size: 13px;
             padding-top: 12px;
+        }
+
+        .github-link {
+            font-size: 13px;
+        }
+
+        .github-link img {
+            width: 14px;
+            height: 14px;
         }
     }
 
@@ -381,6 +421,10 @@
                     <div class="mobile-only">
                         Click "Subscribe to Calendar" to add to your device.
                     </div>
+                    <a href="https://github.com/xmandeng/cathedral-qr" class="github-link" target="_blank" rel="noopener noreferrer">
+                        <img src="https://cdn.jsdelivr.net/gh/primer/octicons/icons/mark-github-16.svg" alt="GitHub">
+                        Source Code
+                    </a>
                 `;
                 container.appendChild(quickSetupCard);
             } catch (error) {

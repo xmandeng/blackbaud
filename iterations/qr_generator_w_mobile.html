@@ -1,0 +1,241 @@
+<!-- Include QR Code with Logo library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-with-logos/1.0.3/qrcode-with-logos.min.js"></script>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .student-calendars {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .student-card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+        background: white;
+    }
+
+    .student-name {
+        font-size: 1.5em;
+        margin-bottom: 15px;
+        color: #333;
+    }
+
+    .qr-code-section {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 25px auto;
+        padding: 25px;
+        background: white;
+        border: 2px solid #f0f0f0;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .qr-code-section canvas {
+        max-width: 350px;
+        height: auto;
+        margin-bottom: 20px;
+    }
+
+    .calendar-link {
+        display: inline-block;
+        color: #0066cc;
+        text-decoration: none;
+        padding: 12px 24px;
+        background-color: #f0f7ff;
+        border: 2px solid #0066cc;
+        border-radius: 6px;
+        margin: 15px 0;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .calendar-link:hover {
+        background-color: #0066cc;
+        color: white;
+    }
+
+    .desktop-instructions {
+        color: #666;
+        font-size: 0.9em;
+        margin: 20px 0;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 6px;
+        line-height: 1.5;
+    }
+
+    .error {
+        color: #dc3545;
+        padding: 20px;
+        border: 1px solid #dc3545;
+        border-radius: 8px;
+        margin-top: 20px;
+    }
+
+    /* Mobile Styles */
+    @media (max-width: 768px) {
+        body {
+            padding: 10px;
+        }
+
+        .student-calendars {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .student-card {
+            padding: 15px;
+            max-width: 100%;
+        }
+
+        .qr-code-section {
+            display: none;
+        }
+
+        .calendar-link {
+            display: block;
+            margin: 10px auto;
+            padding: 16px 24px;
+            font-size: 1.1em;
+            width: 80%;
+            text-align: center;
+        }
+    }
+</style>
+
+<div id="qrCodeContainer">
+    <div class="student-calendars">
+        <!-- Student calendars will appear here -->
+    </div>
+</div>
+
+<script>
+    (function () {
+        async function generateQRWithLogo(elementId, url) {
+            try {
+                const qrCode = new QrCodeWithLogo({
+                    canvas: document.getElementById(elementId),
+                    content: url,
+                    width: 350,
+                    logo: {
+                        src: "thumb_pa.jpg",
+                        radius: 8,
+                        logoSize: 0.2
+                    },
+                    nodeQrCodeOptions: {
+                        color: {
+                            dark: "#1B365D",  // Dark blue color
+                            light: "#ffffff"
+                        },
+                        errorCorrectionLevel: 'H'
+                    }
+                });
+                
+                await qrCode.toCanvas();
+            } catch (error) {
+                console.error('Error generating QR code:', error);
+                // Fallback to show error in the QR code section
+                const canvas = document.getElementById(elementId);
+                canvas.insertAdjacentHTML('afterend', '<div class="error">Unable to generate QR code with logo</div>');
+            }
+        }
+
+        function createWebcalUrl(baseUrl) {
+            const timestamp = new Date().getTime();
+            const separator = baseUrl.includes('?') ? '&' : '?';
+            return `webcal://cathedralnyc.myschoolapp.com${baseUrl}${separator}t=${timestamp}`;
+        }
+
+        // Check if device is mobile
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+        fetch("/api/iCalRSS/iCalMyCalendarsGet", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            credentials: "include",
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(async (data) => {
+                const studentCalendars = data.filter((calendar) =>
+                    calendar.Desc.endsWith("'s Calendars")
+                );
+
+                if (studentCalendars.length === 0) {
+                    throw new Error("No student calendars found");
+                }
+
+                const container = document.querySelector('.student-calendars');
+
+                for (const [index, calendar] of studentCalendars.entries()) {
+                    const studentName = calendar.Desc.slice(0, -11).replace("'", "");
+                    const webcalUrl = createWebcalUrl(calendar.iCalLink);
+
+                    const studentCard = document.createElement('div');
+                    studentCard.className = 'student-card';
+
+                    const qrCodeSection = !isMobile ? `
+                        <div class="qr-code-section">
+                            <canvas id="qrCode${index}"></canvas>
+                            <div class="desktop-instructions">
+                                <strong>Tips for Scanning:</strong>
+                                <br>
+                                1. Increase your screen brightness to maximum
+                                <br>
+                                2. Hold phone 6-8 inches from screen
+                                <br>
+                                3. Avoid screen glare when scanning
+                                <br>
+                                4. When prompted, tap to open calendar app
+                                <br>
+                                5. Confirm the subscription
+                            </div>
+                        </div>
+                    ` : '';
+
+                    studentCard.innerHTML = `
+                        <div class="student-name">${studentName}</div>
+                        ${qrCodeSection}
+                        <a href="${webcalUrl}" class="calendar-link">
+                            📅 Subscribe to Calendar
+                        </a>
+                    `;
+
+                    container.appendChild(studentCard);
+
+                    // Generate QR code for desktop only
+                    if (!isMobile) {
+                        await generateQRWithLogo(`qrCode${index}`, webcalUrl);
+                    }
+                }
+            })
+            .catch((error) => {
+                const container = document.getElementById("qrCodeContainer");
+                container.innerHTML = `
+                    <div class="error">
+                        <h2>Error</h2>
+                        <p>Unable to load calendar data. Please try again later.</p>
+                        <p>Error: ${error.message}</p>
+                    </div>
+                `;
+            });
+    })();
+</script>

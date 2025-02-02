@@ -30,6 +30,12 @@
         "CalId": "[7025445|15501]"
     },
     {
+        "iCalLink": "/podium/feed/iCal.aspx?z=6DLjPff7hp5O1DfXsaPrTQGOylm32au10JXLeDuCttmeiWLtTJ5tSGaRjWV1jidFbST9in8Mazfp%2fNIDc3S3UQ%3d%3d",
+        "Desc": "Pat's Calendars",
+        "Grp": true,
+        "CalId": "[7025445|15500]"
+    },
+    {
         "iCalLink": "/podium/feed/iCal.aspx?z=A0rWYA%2bURhOyihg7MgDesTV17HSturyY5VMch0AaIThmA1sAtPOzWsip4fUgWHJhNhVz50ZVbzlyne%2fi%2btUvSw%3d%3d",
         "Desc": "Games/Practices",
         "Grp": false,

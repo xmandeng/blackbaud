@@ -9,25 +9,38 @@
     }
 
     .calendar-container {
-        display: flex;
-        gap: 32px;
-        align-items: flex-start;
-        justify-content: center;
         padding: 0;
         margin: 0 auto;
         position: relative;
-        flex-direction: row-reverse;
     }
 
-    .student-calendars {
+    .calendar-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 500px), 1fr));
         gap: 24px;
         width: 100%;
-        max-width: 800px;
+        max-width: 1024px;
+        margin: 0 auto;
     }
 
-    .student-card {
+    @media (max-width: 768px) {
+        .calendar-grid {
+            grid-template-columns: 100%;
+            gap: 16px;
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .calendar-grid {
+            grid-template-columns: 1fr;
+            width: 100%;
+            min-width: 0;
+            gap: 16px;
+        }
+    }
+
+    .card {
         border: none;
         border-radius: 16px;
         padding: 32px;
@@ -39,15 +52,28 @@
         flex-direction: column;
         align-items: center;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
+        width: 100%;
+        box-sizing: border-box;
     }
 
-    .student-card:hover {
+    .quick-setup-card {
+        text-align: left;
+        align-items: flex-start;
+    }
+
+    .quick-setup-card .card-title {
+        align-self: center;
+        width: 100%;
+        text-align: center;
+    }
+
+    .card:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(44, 64, 90, 0.08),
                     0 8px 16px rgba(44, 64, 90, 0.12);
     }
 
-    .student-name {
+    .card-title {
         font-size: 24px;
         font-weight: 600;
         margin-bottom: 24px;
@@ -87,9 +113,8 @@
         color: white;
         font-size: 15px;
         font-weight: 500;
-        width: calc(100% - 48px);
-        max-width: 250px;
-        margin: 0 24px;
+        width: 100%;
+        box-sizing: border-box;
         transition: all 0.2s ease;
     }
 
@@ -98,30 +123,19 @@
         transform: translateY(-1px);
     }
 
-    .shared-instructions {
-        width: 280px;
-        padding: 32px;
-        background: white;
-        border-radius: 16px;
-        position: sticky;
-        top: 24px;
-        box-shadow: 0 1px 3px rgba(44, 64, 90, 0.1),
-                    0 4px 8px rgba(44, 64, 90, 0.08);
-        height: fit-content;
-    }
-
-    .quick-setup-title {
-        font-size: 20px;
-        font-weight: 600;
-        margin-bottom: 24px;
-        color: #2C405A;
-        letter-spacing: -0.5px;
-    }
-
-    .setup-steps {
+    .quick-setup-card .setup-steps {
         list-style: none;
-        padding: 0;
-        margin: 0 0 24px 0;
+        padding: 0 16px;
+        margin: 24px 0;
+        text-align: left;
+    }
+
+    .quick-setup-card .mobile-only {
+        padding: 0 16px;
+    }
+
+    .quick-setup-card .alternative-action {
+        padding: 16px 16px 0 16px;
     }
 
     .setup-step {
@@ -151,9 +165,17 @@
         color: #2C405A;
         font-size: 14px;
         opacity: 0.8;
-        text-align: center;
         padding-top: 16px;
         border-top: 1px solid rgba(44, 64, 90, 0.08);
+        width: 100%;
+    }
+
+    .quick-setup-card .alternative-action {
+        text-align: left;
+    }
+
+    .card:not(.quick-setup-card) .alternative-action {
+        text-align: center;
     }
 
     .desktop-only {
@@ -166,22 +188,25 @@
 
     @media (max-width: 768px) {
         body {
-            padding: 16px;
+            padding: 12px;
         }
         
-        .calendar-container {
-            flex-direction: column;
-            gap: 24px;
-        }
-
-        .student-calendars {
+        .calendar-grid {
             grid-template-columns: 1fr;
             gap: 16px;
-            order: 1;
         }
 
-        .student-card {
-            padding: 24px;
+        .card {
+            padding: 16px;
+            min-width: 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .card-title {
+            font-size: 20px;
+            margin-bottom: 16px;
+            width: 100%;
         }
 
         .qr-code {
@@ -189,25 +214,11 @@
         }
 
         .calendar-link {
-            width: calc(100% - 32px);
-            max-width: none;
-            margin: 0 16px;
-        }
-
-        .shared-instructions {
             width: 100%;
-            position: static;
-            margin-top: 24px;
-            order: 2;
-            padding: 24px;
-            border-radius: 16px;
-            box-sizing: border-box;
-        }
-
-        .quick-setup-title {
-            font-size: 20px;
-            margin-bottom: 16px;
-            text-align: left;
+            max-width: none;
+            margin: 0;
+            padding: 10px 16px;
+            font-size: 14px;
         }
 
         .desktop-only {
@@ -217,40 +228,43 @@
         .mobile-only {
             display: block;
             text-align: left;
-            font-size: 15px;
+            font-size: 14px;
             line-height: 1.5;
             color: #2C405A;
+        }
+
+        .setup-steps {
+            margin: 16px 0;
+        }
+
+        .setup-step {
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+
+        .alternative-action {
+            font-size: 13px;
+            padding-top: 12px;
+        }
+    }
+
+    @media (max-width: 360px) {
+        body {
+            padding: 8px;
+        }
+
+        .card {
+            padding: 12px;
+        }
+
+        .calendar-link {
+            padding: 8px 12px;
         }
     }
 </style>
 
 <div id="qrCodeContainer" class="calendar-container">
-    <div class="shared-instructions">
-        <div class="quick-setup">
-            <h2 class="quick-setup-title">Quick Setup</h2>
-            <ul class="setup-steps desktop-only">
-                <li class="setup-step">
-                    <span class="step-number">1</span>
-                    <span>Hold phone 6-8 inches from QR code</span>
-                </li>
-                <li class="setup-step">
-                    <span class="step-number">2</span>
-                    <span>Tap to open calendar app</span>
-                </li>
-                <li class="setup-step">
-                    <span class="step-number">3</span>
-                    <span>Confirm subscription</span>
-                </li>
-            </ul>
-            <div class="alternative-action desktop-only">
-                Or click "Subscribe to Calendar"
-            </div>
-            <div class="mobile-only">
-                Click "Subscribe to Calendar" to add to your device.
-            </div>
-        </div>
-    </div>
-    <div class="student-calendars">
+    <div class="calendar-grid">
         <!-- Student calendars will be dynamically inserted here -->
     </div>
 </div>
@@ -307,7 +321,7 @@
                     throw new Error("No calendars found");
                 }
 
-                const container = document.querySelector('.student-calendars');
+                const container = document.querySelector('.calendar-grid');
                 const isMobile = window.innerWidth <= 768;
 
                 calendarsToShow.forEach((calendar, index) => {
@@ -317,10 +331,10 @@
                     const webcalUrl = createWebcalUrl(calendar.iCalLink);
 
                     const studentCard = document.createElement('div');
-                    studentCard.className = 'student-card';
+                    studentCard.className = 'card';
 
                     studentCard.innerHTML = `
-                        <div class="student-name">${studentName}</div>
+                        <div class="card-title">${studentName}</div>
                         ${!isMobile ? `<div class="qr-code" id="qrCode${index}"></div>` : ''}
                         <a href="${webcalUrl}" class="calendar-link">
                             &#128197; Subscribe to Calendar
@@ -341,6 +355,34 @@
                         });
                     }
                 });
+
+                // Add Quick Setup card last
+                const quickSetupCard = document.createElement('div');
+                quickSetupCard.className = 'card quick-setup-card';
+                quickSetupCard.innerHTML = `
+                    <div class="card-title">Quick Setup</div>
+                    <ul class="setup-steps desktop-only">
+                        <li class="setup-step">
+                            <span class="step-number">1</span>
+                            <span>Hold phone 6-8 inches from QR code</span>
+                        </li>
+                        <li class="setup-step">
+                            <span class="step-number">2</span>
+                            <span>Tap to open calendar app</span>
+                        </li>
+                        <li class="setup-step">
+                            <span class="step-number">3</span>
+                            <span>Confirm subscription</span>
+                        </li>
+                    </ul>
+                    <div class="alternative-action desktop-only">
+                        Or click "Subscribe to Calendar"
+                    </div>
+                    <div class="mobile-only">
+                        Click "Subscribe to Calendar" to add to your device.
+                    </div>
+                `;
+                container.appendChild(quickSetupCard);
             } catch (error) {
                 const container = document.getElementById("qrCodeContainer");
                 container.innerHTML = `

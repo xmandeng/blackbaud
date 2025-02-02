@@ -27,11 +27,53 @@ A modern, responsive web component for Blackbaud that generates QR codes for eas
 - Streamlined Quick Setup instructions
 - No minimum width constraints for maximum compatibility
 
+## Local Development Setup
+
+### Prerequisites
+- Node.js (v14 or higher)
+- npm (comes with Node.js)
+
+### Project Structure
+```
+cathedral-qr/
+├── package.json
+├── package-lock.json
+├── server.js
+├── sample_calendar_data.json
+└── qr_generator_w_mobile.html
+```
+
+### Installation
+1. Clone the repository:
+```bash
+git clone https://github.com/xmandeng/cathedral-qr.git
+cd cathedral-qr
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Start the development server:
+```bash
+npm start
+```
+
+The application will be available at `http://localhost:3000`
+
+### Development Notes
+- The Express server provides a mock API endpoint (`/api/iCalRSS/iCalMyCalendarsGet`) that serves sample calendar data
+- Static files are served from the root directory
+- The server automatically handles the webcal:// URL generation
+- Sample calendar data can be modified in `sample_calendar_data.json`
+
 ## Tech Stack
 - Pure HTML, CSS, and JavaScript
 - QRCode.js (loaded conditionally for desktop only)
 - CSS Grid and Flexbox for responsive layouts
 - CSS Custom Properties for theming
+- Express.js for local development server
 - Blackbaud API integration
 
 ## Design Features
